@@ -41,10 +41,10 @@ class Main():
                         'If you don\'t specify a language, it will be translated in EN',
                     color = discord.Colour.random()
                 )
-                embed_lang.add_field(name="ドイツ語,(German)", value="DE")
+                embed_lang.add_field(name="ドイツ語(German)", value="DE")
                 embed_lang.add_field(name="英語(English)", value="EN")
                 embed_lang.add_field(name="イタリア語(Italian)", value="IT")
-                embed_lang.add_field(name="日本語(Japanese)", value="JA")
+                embed_lang.add_field(name="日本語(Japanese)", value="JP")
                 embed_lang.add_field(name="ルーマニア語(Romanian)", value="RO")
                 embed_lang.add_field(name="ロシア語(Russian)", value="RU")
                 embed_lang.add_field(name="スウェーデン語(Swedish)", value="SV")
@@ -71,6 +71,9 @@ class Main():
 
                 if target_lang == 'EN':
                     target_lang = 'EN-US'
+
+                if target_lang == 'JP':
+                    target_lang = 'JA'
 
                 method = 'POST'
                 auth_key = os.environ.get('AUTH_KEY')
