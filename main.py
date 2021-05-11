@@ -11,86 +11,118 @@ load_dotenv(dotenv_path)
 
 token = os.environ.get('TOKEN')
 
-class Main():
-    client = discord.Client()
+client = discord.Client()
 
-    @client.event
-    async def on_ready():
-        print('ログインしました')
 
-    @client.event
-    async def on_message(message):
-        if '/translate' in message.content:
-            if message.content == '/translate-help':
-                embed_help = discord.Embed(
-                    title =
-                      '翻訳したい内容を[]に入れてください。 \r\n' \
-                      '翻訳したい言語を()に指定してください。\r\n'\
-                        'Enter the content you want to translate in [].\r\n'\
-                        'Specify the language you want to translate in ().',
-                    color = discord.Colour.random()
-                )
-                await message.channel.send(embed=embed_help)
+@client.event
+async def on_ready():
+    print('ログインしました')
 
-                embed_lang = discord.Embed(
-                    title =
-                        '以下から翻訳したい言語を指定してください。\r\n'\
-                        'Specify the language you want to translate from below.',
-                    description =
-                        'もし言語を選択しない場合、英語で翻訳されます。\r\n'\
-                        'If you don\'t specify a language, it will be translated in EN',
-                    color = discord.Colour.random()
-                )
-                embed_lang.add_field(name="ドイツ語(German)", value="DE")
-                embed_lang.add_field(name="英語(English)", value="EN")
-                embed_lang.add_field(name="イタリア語(Italian)", value="IT")
-                embed_lang.add_field(name="日本語(Japanese)", value="JP")
-                embed_lang.add_field(name="ルーマニア語(Romanian)", value="RO")
-                embed_lang.add_field(name="ロシア語(Russian)", value="RU")
-                embed_lang.add_field(name="スウェーデン語(Swedish)", value="SV")
 
-                await message.channel.send(embed=embed_lang)
+@client.event
+async def on_message(message):
+    if '/translate' in message.content:
+        # helpを参照
+        if message.content == '/translate-help':
+            await message.channel.send(embed = create_help_embed()['ja'])
+            await message.channel.send(embed = create_help_embed()['en'])
 
-                embed_example = discord.Embed(
-                    title =
-                        'e.g.) 例\r\n'\
-                        '/translate [Hello World](DE) \r\n'\
-                        '"Hallo Welt (translated)"',
-                    color = discord.Colour.random()
-                )
-                await message.channel.send(embed=embed_example)
-            else:
-                url = 'https://api-free.deepl.com/v2/translate'
+        # 翻訳したい内容が[]に入っていない場合
+        elif len(re.findall(r'\[(.+)\]', message.content)) == 0:
+            embed = discord.Embed(
+                title = 'Failure!',
+                description =
+                    '翻訳したい内容を[]に入れてください。\r\n'\
+                    'Enter the content you want to translate in [].',
+                color = discord.Colour.random()
+            )
+            await message.channel.send(embed = embed);
 
-                # re.findallを使用すると配列になるので[0]をつけている
-                text = re.findall(r'\[(.+)\]', message.content)[0]
+        else:
+            url = 'https://api-free.deepl.com/v2/translate'
 
+            # re.findallを使用すると配列になるので[0]をつけている
+            text = re.findall(r'\[(.+)\]', message.content)[0]
+
+            # 言語の指定がない場合英語で翻訳する
+            target_lang = 'EN-US'
+
+            if len(re.findall(r'\((.+)\)', message.content)) != 0:
+                target_lang = re.findall(r'\((.+)\)', message.content)[0]
+
+            if target_lang == 'EN':
                 target_lang = 'EN-US'
-                if len(re.findall(r'\((.+)\)', message.content)) != 0:
-                    target_lang = re.findall(r'\((.+)\)', message.content)[0]
 
-                if target_lang == 'EN':
-                    target_lang = 'EN-US'
+            if target_lang == 'JP':
+                target_lang = 'JA'
 
-                if target_lang == 'JP':
-                    target_lang = 'JA'
+            method = 'POST'
+            auth_key = os.environ.get('AUTH_KEY')
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-                method = 'POST'
-                auth_key = os.environ.get('AUTH_KEY')
-                headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            data = urllib.parse.urlencode({
+                'auth_key': auth_key,
+                'text': text,
+                'target_lang': target_lang
+            }).encode('utf-8')
 
-                data = urllib.parse.urlencode({
-                    'auth_key': auth_key,
-                    'text': text,
-                    'target_lang': target_lang
-                }).encode('utf-8')
+            request = urllib.request.Request(url, data = data, method = method, headers = headers)
+            with urllib.request.urlopen(request) as response:
+                response_body = response.read().decode('utf-8')
+            # レスポンスは配列だがデータは一つしかないため[0]で固定している
+            result = json.loads(response_body)['translations'][0]['text'] + ' (translated)'
 
-                request = urllib.request.Request(url, data=data, method=method, headers=headers)
-                with urllib.request.urlopen(request) as response:
-                    response_body = response.read().decode("utf-8")
-                # レスポンスは配列だがデータは一つしかないため[0]で固定している
-                result = json.loads(response_body)['translations'][0]['text'] + ' (translated)'
+            await message.channel.send(result)
 
-                await message.channel.send(result)
 
-    client.run(token)
+def create_help_embed():
+
+    # 日本語版ヘルプのembed作成
+    embed_ja = discord.Embed(
+        title = '/translateコマンドの使い方',
+        description =
+            '翻訳したい内容を[]に入れてください。\r\n' \
+            '翻訳したい言語を()に指定してください。\r\n\r\n'\
+            '(例)\r\n' \
+            '入力: /translate [Hello World](DE) \r\n'\
+            '出力: Hallo Welt (translated)\r\n\r\n'\
+            '以下から翻訳したい言語を指定してください。\r\n'\
+            'もし言語を選択しない場合、英語で翻訳されます。',
+        color = discord.Colour.random()
+    )
+    embed_ja.add_field(name = "ドイツ語", value = "DE")
+    embed_ja.add_field(name = "英語", value = "EN")
+    embed_ja.add_field(name = "イタリア語", value = "IT")
+    embed_ja.add_field(name = "日本語", value = "JP")
+    embed_ja.add_field(name = "ルーマニア語", value = "RO")
+    embed_ja.add_field(name = "ロシア語", value = "RU")
+    embed_ja.add_field(name = "スウェーデン語", value = "SV")
+
+    # 英語版ヘルプのembed作成
+    embed_en = discord.Embed(
+        title = 'How to use the /translate command',
+        description =
+            'Enter the content you want to translate in [].\r\n'\
+            'Specify the language you want to translate in ().\r\n\r\n'\
+            '(example)\r\n'\
+            'input: /translate [Hello World](DE) \r\n'\
+            'output: Hallo Welt (translated)\r\n\r\n'\
+            'Specify the language you want to translate from below.\r\n'\
+            'If you don\'t specify the language, it will be translated in English.',
+        color = discord.Colour.random()
+    )
+    embed_en.add_field(name = "German", value = "DE")
+    embed_en.add_field(name = "English", value = "EN")
+    embed_en.add_field(name = "Italian", value = "IT")
+    embed_en.add_field(name = "Japanese", value = "JP")
+    embed_en.add_field(name = "Romanian", value = "RO")
+    embed_en.add_field(name = "Russian", value = "RU")
+    embed_en.add_field(name = "Swedish", value = "SV")
+
+    return {
+        'ja': embed_ja,
+        'en': embed_en
+    }
+
+
+client.run(token)
