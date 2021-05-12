@@ -84,7 +84,7 @@ def create_help_embed():
             '翻訳したい内容を[]に入れてください。\r\n' \
             '翻訳したい言語を()に指定してください。\r\n\r\n'\
             '(例)\r\n' \
-            '入力: /translate [Hello World](DE) \r\n'\
+            '入力: /translate \[Hello World\]\(DE\) \r\n'\
             '出力: Hallo Welt (translated)\r\n\r\n'\
             '以下から翻訳したい言語を指定してください。\r\n'\
             'もし言語を選択しない場合、英語で翻訳されます。',
@@ -105,7 +105,7 @@ def create_help_embed():
             'Enter the content you want to translate in [].\r\n'\
             'Specify the language you want to translate in ().\r\n\r\n'\
             '(example)\r\n'\
-            'input: /translate [Hello World](DE) \r\n'\
+            'input: /translate \[Hello World\]\(DE\) \r\n'\
             'output: Hallo Welt (translated)\r\n\r\n'\
             'Specify the language you want to translate from below.\r\n'\
             'If you don\'t specify the language, it will be translated in English.',
