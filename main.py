@@ -90,8 +90,8 @@ def create_help_embed():
     embed_en.add_field(name="Romanian", value="RO")
     embed_en.add_field(name="Russian", value="RU")
     embed_en.add_field(name="Swedish", value="SV")
-    embed_ja.add_field(name="Dutch", value="NL")
-    embed_ja.add_field(name="Chinese", value="ZH")
+    embed_en.add_field(name="Dutch", value="NL")
+    embed_en.add_field(name="Chinese", value="ZH")
 
     return {
         'ja': embed_ja,
