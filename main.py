@@ -67,6 +67,8 @@ def create_help_embed():
     embed_ja.add_field(name="ルーマニア語", value="RO")
     embed_ja.add_field(name="ロシア語", value="RU")
     embed_ja.add_field(name="スウェーデン語", value="SV")
+    embed_ja.add_field(name="オランダ語", value="NL")
+    embed_ja.add_field(name="中国語", value="ZH")
 
     # 英語版ヘルプのembed作成
     embed_en=discord.Embed(
@@ -88,6 +90,8 @@ def create_help_embed():
     embed_en.add_field(name="Romanian", value="RO")
     embed_en.add_field(name="Russian", value="RU")
     embed_en.add_field(name="Swedish", value="SV")
+    embed_ja.add_field(name="Dutch", value="NL")
+    embed_ja.add_field(name="Chinese", value="ZH")
 
     return {
         'ja': embed_ja,
@@ -114,7 +118,7 @@ def request_to_translate(message_content):
         target_lang='JA'
 
     # 翻訳したい言語が与えられた言語以外の場合、エラーを返却する
-    if target_lang not in {'DE', 'EN-US', 'IT', 'JA', 'RO', 'RU', 'SV'}:
+    if target_lang not in {'DE', 'EN-US', 'IT', 'JA', 'RO', 'RU', 'SV', 'NL', 'ZH'}:
         embed=discord.Embed(
             title='Failure!',
             description=
@@ -129,6 +133,8 @@ def request_to_translate(message_content):
         embed.add_field(name="ルーマニア語\r\nRomanian", value="RO")
         embed.add_field(name="ロシア語\r\nRussian", value="RU")
         embed.add_field(name="スウェーデン語\r\nSwedish", value="SV")
+        embed.add_field(name="オランダ語\r\nDutch", value="NL")
+        embed.add_field(name="中国語\r\nChinese", value="ZH")
         
         return {
             'flg': 'false',
